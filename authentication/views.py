@@ -106,3 +106,11 @@ def login(request):
             }
         })
     return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class SupervisorListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    
+
+    def get_queryset(self):
+        return User.objects.filter(role='SUPERVISOR')

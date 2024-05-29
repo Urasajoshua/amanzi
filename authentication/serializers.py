@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'RegNo', 'password', 'role', 'firstname', 'middlename', 'surname', 'created_at', 'updated_at']
+        fields = [ 'email', 'RegNo', 'password', 'role', 'firstname', 'middlename', 'surname']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 class DissertationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dissertation
-        fields = ['id', 'title', 'student', 'file', 'status', 'created_at', 'updated_at']
+        fields = [ 'title', 'student', 'file', 'status']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -68,14 +68,14 @@ class UserLoginSerializer(serializers.Serializer):
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ['id', 'name']
+        fields = [ 'name']
 
 class CourseSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer(read_only=True)
 
     class Meta:
         model = Course
-        fields = ['id', 'name', 'department', 'year']
+        fields = [ 'name', 'department', 'year']
 
 class CourseCreateSerializer(serializers.ModelSerializer):
     class Meta:
