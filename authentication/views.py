@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
+from rest_framework.views import APIView
 
 class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -114,3 +115,20 @@ class SupervisorListView(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(role='SUPERVISOR')
+    
+
+class StudentsBySupervisorView(APIView):
+    
+
+    def get(self, request, supervisor_id):
+        # Get the supervisor
+        supervisor = User.objects.filter(id=supervisor_id, role='SUPERVISOR').first()
+        if not supervisor:
+            return Response({"error": "Supervisor not found"}, status=404)
+
+        # Get students supervised by this supervisor
+        students = supervisor.students.all()
+
+        # Serialize the student data
+        serializer = UserSerializer(students, many=True)
+        return Response(serializer.data)

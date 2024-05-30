@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserLoginAPIView,DepartmentListCreateView,CourseListCreateView,signup,login,SupervisorListView
+from .views import UserLoginAPIView,DepartmentListCreateView,CourseListCreateView,signup,login,SupervisorListView ,StudentsBySupervisorView
 
 urlpatterns = [
     
@@ -9,6 +9,7 @@ urlpatterns = [
     path('signup/', signup, name='signup'),
     path('login/',login,name='login'),
     path('supervisors/', SupervisorListView.as_view(), name='supervisor-list'),
+    path('supervisor/<int:supervisor_id>/students/', StudentsBySupervisorView.as_view(), name='students-by-supervisor'),
 
     
 ]
