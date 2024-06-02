@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import User, Dissertation, Comment, Supervision,Department,Course
-from .serializers import UserSerializer, DissertationSerializer, CommentSerializer, SupervisionSerializer , UserLoginSerializer,DepartmentSerializer,CourseCreateSerializer,CourseSerializer
+from .serializers import UserSerializer, DissertationSerializer, CommentSerializer, SupervisionSerializer , UserLoginSerializer,DepartmentSerializer,CourseCreateSerializer,CourseSerializer,DissertationUploadSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -132,3 +132,48 @@ class StudentsBySupervisorView(APIView):
         # Serialize the student data
         serializer = UserSerializer(students, many=True)
         return Response(serializer.data)
+    
+
+class DashboardData(APIView):
+    def get(self, request):
+        departments_count = Department.objects.count()
+        courses_count = Course.objects.count()
+        dissertations_count = Dissertation.objects.count()
+        verified_dissertations_count = Dissertation.objects.filter(status='VERIFIED').count()
+        unverified_dissertations_count = Dissertation.objects.filter(status='PENDING').count()
+
+        data = {
+            'departments': departments_count,
+            'courses': courses_count,
+            'dissertations': dissertations_count,
+            'verifiedDissertations': verified_dissertations_count,
+            'unverifiedDissertations': unverified_dissertations_count,
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+    
+
+class DissertationUploadView(APIView):
+    
+
+    def post(self, request):
+        data = request.data.copy()
+        data['student'] = request.user.id  # Ensure the student is the logged-in user
+        serializer = DissertationUploadSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class StudentsByCourseView(APIView):
+    def get(self, request, course_id):
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        students = User.objects.filter(course=course, role='STUDENT').prefetch_related('dissertations')
+        serializer = UserSerializer(students, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

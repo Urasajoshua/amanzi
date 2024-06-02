@@ -6,6 +6,8 @@ from authentication.views import (
     CommentListCreateAPIView, CommentRetrieveUpdateDestroyAPIView,
     SupervisionListCreateAPIView, SupervisionRetrieveUpdateDestroyAPIView,
 )
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,3 +21,5 @@ urlpatterns = [
     path('api/supervisions/<int:pk>/', SupervisionRetrieveUpdateDestroyAPIView.as_view(), name='supervision-detail'),
     path('auth/',include('authentication.urls'))
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

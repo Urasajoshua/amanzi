@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('firstname', 'middlename', 'surname', 'role','RegNo')}),
+        ('Personal info', {'fields': ('firstname', 'middlename', 'surname', 'role','RegNo','course')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login',)}),
     )
@@ -15,7 +15,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'password1', 'password2', 'firstname', 'middlename', 'surname', 'role')}
         ),
     )
-    list_display = ('email', 'firstname','middlename','surname','RegNo','role', 'is_staff')
+    list_display = ('email', 'firstname','middlename','surname','RegNo','role','course', 'is_staff')
     search_fields = ('email', 'firstname', 'surname')
     ordering = ('email',)
 
