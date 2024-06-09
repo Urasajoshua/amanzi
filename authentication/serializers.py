@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User, Dissertation, Comment, Supervision, Course, Department
 from django.contrib.auth import authenticate
+from django.utils.crypto import get_random_string
 
 class DissertationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,14 +27,20 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        # Generate a default password from the uppercase SURNAME
+        default_password = validated_data.get('surname', '').upper()
+
         user = User(
             email=validated_data['email'],
+            RegNo=validated_data['RegNo'],  # Include RegNo in user creation
             firstname=validated_data['firstname'],
             middlename=validated_data['middlename'],
             surname=validated_data.get('surname'),
+            course=validated_data.get('course'),  # Include course in user creation
             role=validated_data['role']
         )
-        user.set_password(validated_data['password'])
+        # Set the password to the default password or generate a random password
+        user.set_password(default_password or get_random_string())
         user.save()
         return user
 
