@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import User, Dissertation, Comment, Supervision,Department,Course
-from .serializers import UserSerializer, DissertationSerializer, CommentSerializer, SupervisionSerializer , UserLoginSerializer,DepartmentSerializer,CourseCreateSerializer,CourseSerializer,DissertationUploadSerializer
+from .serializers import UserSerializer, DissertationSerializer, CommentSerializer, SupervisionSerializer , UserLoginSerializer,DepartmentSerializer,CourseCreateSerializer,CourseSerializer,DissertationUploadSerializer,DissertationStatusUpdateSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -177,3 +177,23 @@ class StudentsByCourseView(APIView):
         students = User.objects.filter(course=course, role='STUDENT').prefetch_related('dissertations')
         serializer = UserSerializer(students, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@api_view(['PATCH'])
+def update_dissertation_status(request, dissertation_id):
+    try:
+        dissertation = Dissertation.objects.get(pk=dissertation_id)
+    except Dissertation.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        serializer = DissertationStatusUpdateSerializer(dissertation, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+
+

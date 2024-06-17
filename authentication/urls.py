@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserLoginAPIView,DepartmentListCreateView,CourseListCreateView,signup,login,SupervisorListView ,StudentsBySupervisorView,DashboardData,DissertationUploadView,StudentsByCourseView
+from .views import UserLoginAPIView,DepartmentListCreateView,CourseListCreateView,signup,login,SupervisorListView ,StudentsBySupervisorView,DashboardData,DissertationUploadView,StudentsByCourseView,update_dissertation_status
 
 urlpatterns = [
     
@@ -13,6 +13,9 @@ urlpatterns = [
     path('api/dashboard-data/', DashboardData.as_view(), name='dashboard-data'),
     path('api/dissertations/', DissertationUploadView.as_view(), name='dissertation-upload'),
     path('courses/<int:course_id>/students/', StudentsByCourseView.as_view(), name='students-by-course'),
+    path('dissertations/<int:dissertation_id>/update_status/', update_dissertation_status, name='update_dissertation_status'),
+
+   
 
     
 ]

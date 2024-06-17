@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'RegNo', 'password', 'role', 'firstname', 'middlename', 'surname', 'course', 'dissertations']
+        fields = ['email', 'RegNo', 'password', 'role', 'firstname', 'surname', 'course', 'dissertations']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -31,10 +31,8 @@ class UserSerializer(serializers.ModelSerializer):
         default_password = validated_data.get('surname', '').upper()
 
         user = User(
-            email=validated_data['email'],
             RegNo=validated_data['RegNo'],  # Include RegNo in user creation
             firstname=validated_data['firstname'],
-            middlename=validated_data['middlename'],
             surname=validated_data.get('surname'),
             course=validated_data.get('course'),  # Include course in user creation
             role=validated_data['role']
@@ -46,6 +44,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        if instance.role == 'SUPERVISOR':
+            representation['RegNo'] = None  # Set RegNo to null if role is SUPERVISOR
         if instance.course:
             representation['course'] = instance.course.name
         return representation
@@ -59,6 +59,17 @@ class SupervisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supervision
         fields = ['id', 'student', 'supervisor', 'created_at']
+
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['student'] = {
+            'firstname': instance.student.firstname,
+            'surname': instance.student.surname,
+            'regno': instance.student.RegNo,
+            
+        }
+        return data
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -100,3 +111,10 @@ class DissertationUploadSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'student': {'write_only': True}
         }
+
+
+class DissertationStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dissertation
+        fields = ['status']
+        
