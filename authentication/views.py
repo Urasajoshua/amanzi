@@ -179,21 +179,16 @@ class StudentsByCourseView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-@api_view(['PATCH'])
-def update_dissertation_status(request, dissertation_id):
-    try:
-        dissertation = Dissertation.objects.get(pk=dissertation_id)
-    except Dissertation.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'PATCH':
-        serializer = DissertationStatusUpdateSerializer(dissertation, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+class DissertationStatusUpdateView(generics.UpdateAPIView):
+    queryset = Dissertation.objects.all()
+    serializer_class = DissertationStatusUpdateSerializer
 
 
+    def patch(self, request, *args, **kwargs):
+        dissertation = self.get_object()
 
+        # Check if the user is a supervisor
+        if request.user.role != 'SUPERVISOR':
+            return Response({'detail': 'You do not have permission to perform this action.'}, status=status.HTTP_403_FORBIDDEN)
 
+        return self.partial_update(request, *args, **kwargs)

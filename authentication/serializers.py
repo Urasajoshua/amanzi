@@ -31,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         default_password = validated_data.get('surname', '').upper()
 
         user = User(
+            email=validated_data['email'],
             RegNo=validated_data['RegNo'],  # Include RegNo in user creation
             firstname=validated_data['firstname'],
             surname=validated_data.get('surname'),
