@@ -86,27 +86,48 @@ def signup(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 @api_view(['POST'])
 def login(request):
-    email = request.data.get('email')
+    email_or_regno = request.data.get('email_or_regno')
     password = request.data.get('password')
-    user = authenticate(request, email=email, password=password)
-    if user is not None:
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user': {
-                'id': user.id,
-                'email': user.email,
-                'firstname': user.firstname,
-                'middlename': user.middlename,
-                'surname': user.surname,
-                'role': user.role,
-            }
-        })
-    return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not email_or_regno or not password:
+        return Response({'detail': 'Email/RegNo and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        if '@' in email_or_regno:
+            # If input contains '@', assume it's an email
+            user = User.objects.get(email=email_or_regno)
+        else:
+            # Otherwise, assume it's a RegNo and fetch corresponding user
+            user = User.objects.get(RegNo=email_or_regno)
+
+        # Now authenticate with fetched email and provided password
+        authenticated_user = authenticate(request, username=user.email, password=password)
+
+        if authenticated_user is not None:
+            refresh = RefreshToken.for_user(authenticated_user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'RegNo': user.RegNo,
+                    'firstname': user.firstname,
+                    'middlename': user.middlename,
+                    'surname': user.surname,
+                    'role': user.role,
+                }
+            })
+        else:
+            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    except User.DoesNotExist:
+        return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    except User.MultipleObjectsReturned:
+        return Response({'detail': 'Multiple users found. Please contact support.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class SupervisorListView(generics.ListAPIView):
