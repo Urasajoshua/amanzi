@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'RegNo', 'password', 'role', 'firstname', 'surname', 'course', 'dissertations']
+        fields = ['id','email', 'RegNo', 'password', 'role', 'firstname', 'surname', 'course', 'dissertations']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -117,5 +117,47 @@ class DissertationUploadSerializer(serializers.ModelSerializer):
 class DissertationStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dissertation
-        fields = ['status']
+        fields = ['id','status']
         
+class SupervisionSerializer(serializers.ModelSerializer):
+    supervisor = UserSerializer()
+    students = UserSerializer(many=True)
+
+    class Meta:
+        model = Supervision
+        fields = ['id', 'supervisor', 'students', 'created_at']
+
+    def create(self, validated_data):
+        supervisor_data = validated_data.pop('supervisor')
+        students_data = validated_data.pop('students')
+
+        supervisor_instance = User.objects.get(id=supervisor_data['id'])
+        supervision_instances = []
+
+        for student_data in students_data:
+            student_instance = User.objects.get(id=student_data['id'])
+            supervision_instance = Supervision.objects.create(supervisor=supervisor_instance, student=student_instance)
+            supervision_instances.append(supervision_instance)
+
+        return supervision_instances
+
+class AssignStudentsToSupervisorSerializer(serializers.Serializer):
+    supervisor = serializers.IntegerField()
+    students = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+
+    def create(self, validated_data):
+        supervisor_id = validated_data['supervisor']
+        student_ids = validated_data['students']
+
+        supervisor = User.objects.get(pk=supervisor_id)
+        students = User.objects.filter(pk__in=student_ids)
+
+        # Create or update supervision records
+        for student in students:
+            supervision, created = Supervision.objects.update_or_create(
+                supervisor=supervisor,
+                student=student,
+                defaults={'supervisor': supervisor, 'student': student}
+            )
+
+        return {'supervisor': supervisor_id, 'students': student_ids}

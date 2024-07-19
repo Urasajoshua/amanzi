@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import User, Dissertation, Comment, Supervision,Department,Course
-from .serializers import UserSerializer, DissertationSerializer, CommentSerializer, SupervisionSerializer , UserLoginSerializer,DepartmentSerializer,CourseCreateSerializer,CourseSerializer,DissertationUploadSerializer,DissertationStatusUpdateSerializer
+from .serializers import UserSerializer, DissertationSerializer, CommentSerializer, SupervisionSerializer , UserLoginSerializer,DepartmentSerializer,CourseCreateSerializer,CourseSerializer,DissertationUploadSerializer,DissertationStatusUpdateSerializer,AssignStudentsToSupervisorSerializer
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
+from rest_framework.exceptions import PermissionDenied
 
 class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -202,14 +203,40 @@ class StudentsByCourseView(APIView):
 
 class DissertationStatusUpdateView(generics.UpdateAPIView):
     queryset = Dissertation.objects.all()
-    serializer_class = DissertationStatusUpdateSerializer
-
+    serializer_class = DissertationSerializer
 
     def patch(self, request, *args, **kwargs):
         dissertation = self.get_object()
 
-        # Check if the user is a supervisor
+        # Check if the user is a supervisor (you might want to adjust this logic as per your roles)
         if request.user.role != 'SUPERVISOR':
-            return Response({'detail': 'You do not have permission to perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied("You do not have permission to perform this action.")
 
-        return self.partial_update(request, *args, **kwargs)
+        serializer = self.get_serializer(dissertation, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
+class SupervisionCreateView(generics.CreateAPIView):
+    queryset = Supervision.objects.all()
+    serializer_class = SupervisionSerializer
+
+
+@api_view(['POST'])
+def assign_students_to_supervisor(request):
+    if request.method == 'POST':
+        serializer = AssignStudentsToSupervisorSerializer(data=request.data)
+        if serializer.is_valid():
+            # Assuming your serializer.save() logic or data handling
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class VerifiedDissertationListView(generics.ListAPIView):
+    queryset = Dissertation.objects.filter(status='VERIFIED')
+    serializer_class = DissertationSerializer
+
+class UnverifiedDissertationListView(generics.ListAPIView):
+    queryset = Dissertation.objects.filter(status='PENDING')
+    serializer_class = DissertationSerializer

@@ -5,12 +5,13 @@ from authentication.views import (
     DissertationListCreateAPIView, DissertationRetrieveUpdateDestroyAPIView,
     CommentListCreateAPIView, CommentRetrieveUpdateDestroyAPIView,
     SupervisionListCreateAPIView, SupervisionRetrieveUpdateDestroyAPIView,
+    SupervisionCreateView,assign_students_to_supervisor
 )
 from django.conf import settings
 from django.conf.urls.static import static
-
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/assign_students_to_supervisor/',assign_students_to_supervisor, name='assign-students-to-supervisor'),
     path('api/users/', UserListCreateAPIView.as_view(), name='user-list-create'),
     path('api/users/<int:pk>/', UserRetrieveUpdateDestroyAPIView.as_view(), name='user-detail'),
     path('api/dissertations/', DissertationListCreateAPIView.as_view(), name='dissertation-list-create'),
@@ -19,7 +20,7 @@ urlpatterns = [
     path('api/comments/<int:pk>/', CommentRetrieveUpdateDestroyAPIView.as_view(), name='comment-detail'),
     path('api/supervisions/', SupervisionListCreateAPIView.as_view(), name='supervision-list-create'),
     path('api/supervisions/<int:pk>/', SupervisionRetrieveUpdateDestroyAPIView.as_view(), name='supervision-detail'),
-    path('auth/',include('authentication.urls'))
+    path('auth/', include('authentication.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

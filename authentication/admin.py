@@ -59,7 +59,7 @@ class DissertationAdminForm(forms.ModelForm):
 @admin.register(Dissertation)
 class DissertationAdmin(admin.ModelAdmin):
     form = DissertationAdminForm
-    list_display = ('title','student','file','status')
+    list_display = ('id','title','student','file','status')
    
 
 @admin.register(Department)
