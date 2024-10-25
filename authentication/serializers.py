@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import User, Dissertation, Comment, Supervision, Course, Department
 from django.contrib.auth import authenticate
 from django.utils.crypto import get_random_string
+from django.contrib.auth.password_validation import validate_password
 
 class DissertationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -161,3 +162,18 @@ class AssignStudentsToSupervisorSerializer(serializers.Serializer):
             )
 
         return {'supervisor': supervisor_id, 'students': student_ids}
+    
+
+
+class PasswordUpdateSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+
+    def validate_new_password(self, value):
+        # Validate the password using Django's built-in validators
+        validate_password(value)
+        return value
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])
+        instance.save()
+        return instance

@@ -5,10 +5,13 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
+from .serializers import PasswordUpdateSerializer
+from rest_framework.permissions import IsAuthenticated 
+from rest_framework.permissions import AllowAny
 
 class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
@@ -240,3 +243,34 @@ class VerifiedDissertationListView(generics.ListAPIView):
 class UnverifiedDissertationListView(generics.ListAPIView):
     queryset = Dissertation.objects.filter(status='PENDING')
     serializer_class = DissertationSerializer
+
+
+class PasswordUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        serializer = PasswordUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            # Update password for the authenticated user
+            serializer.update(request.user, serializer.validated_data)
+            return Response({"detail": "Password updated successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Allow access without authentication
+def update_password_by_email(request):
+    email = request.data.get('email')
+    new_password = request.data.get('new_password')
+
+    if not email or not new_password:
+        return Response({'detail': 'Email and new password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+        user.set_password(new_password)  # Set the new password
+        user.save()  # Save the user instance
+        return Response({'detail': 'Password updated successfully.'}, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)

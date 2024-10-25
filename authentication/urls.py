@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserLoginAPIView,DepartmentListCreateView,CourseListCreateView,signup,login,SupervisorListView ,StudentsBySupervisorView,DashboardData,DissertationUploadView,StudentsByCourseView,DissertationStatusUpdateView,VerifiedDissertationListView,UnverifiedDissertationListView
+from .views import UserLoginAPIView,DepartmentListCreateView,CourseListCreateView,signup,login,SupervisorListView ,StudentsBySupervisorView,DashboardData,DissertationUploadView,StudentsByCourseView,DissertationStatusUpdateView,VerifiedDissertationListView,UnverifiedDissertationListView,PasswordUpdateView,update_password_by_email
 
 urlpatterns = [
     
@@ -15,7 +15,8 @@ urlpatterns = [
     path('courses/<int:course_id>/students/', StudentsByCourseView.as_view(), name='students-by-course'),
     path('dissertations/<int:pk>/', DissertationStatusUpdateView.as_view(), name='update_dissertation_status'),
     path('verified/',VerifiedDissertationListView.as_view()),
-    path('unverified/',UnverifiedDissertationListView.as_view())
+    path('unverified/',UnverifiedDissertationListView.as_view()),
+    path('update-password/', update_password_by_email, name='update-password'),
     
 
    
