@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',  
-    'https://database-mu-six.vercel.app/'
+    'https://database-mu-six.vercel.app/',
 ]
 
 
