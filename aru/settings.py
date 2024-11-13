@@ -150,7 +150,13 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
+# Allow cross-site cookies
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'None'
 
+# Ensure cookies are only sent over HTTPS (important for SameSite=None)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 JAZZMIN_SETTINGS = {
     "site_title": "Aru Dissertation Management System",
