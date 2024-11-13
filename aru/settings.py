@@ -157,7 +157,7 @@ JAZZMIN_SETTINGS = {
     "site_header": "Aru Dissertation Online Database",
 }
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['database-mu-six.vercel.app']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
