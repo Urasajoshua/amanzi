@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-local-dev-secret-key')
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 # Allowed hosts
-ALLOWED_HOSTS = ['13.60.203.193:8000',]
+ALLOWED_HOSTS = ['13.60.203.193:8000','16.16.201.52']
 
 # Installed apps
 INSTALLED_APPS = [
