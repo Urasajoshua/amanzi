@@ -1,31 +1,18 @@
-
 import os
 from pathlib import Path
 
-
-# Activate Django-Heroku
-
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Secret key
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-local-dev-secret-key')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+# Debug settings
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-to%jgc^0f5(xl1a3!+6wqym&399h_x=fa-j*m*ubhc6y7wk^^b'
+# Allowed hosts
+ALLOWED_HOSTS = ['13.60.203.193:8000',]
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-CORS_ALLOW_ALL_ORIGINS = True
-
-
-
-# Application definition
-
+# Installed apps
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',
@@ -34,25 +21,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    #app
     'authentication.apps.AuthenticationConfig',
     'rest_framework',
     'rest_framework_simplejwt',
-    'corsheaders',  
-
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
 
-ALLOWED_HOSTS = ['*']
-
-
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -62,6 +44,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'aru.urls'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -80,10 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'aru.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -91,83 +71,56 @@ DATABASES = {
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
+# REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
-
+# CORS settings
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Your local development server
-    'https://database-mu-six.vercel.app',  # Vercel frontend URL
+    'http://localhost:5173',
+    'https://database-mu-six.vercel.app',
 ]
 
-
-# Allow cross-site cookies
+# Cookie settings
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SAMESITE = 'None'
-
-# Ensure cookies are only sent over HTTPS (important for SameSite=None)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+# Jazzmin settings
 JAZZMIN_SETTINGS = {
     "site_title": "Aru Dissertation Management System",
     "site_header": "Aru Dissertation Online Database",
 }
-
-ALLOWED_HOSTS = ['*']
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
